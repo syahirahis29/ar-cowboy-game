@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🤠 AR COWBOY: MISI DENGAR & FAHAM!</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <!-- Google Fonts: Noto Sans, Rye, Bangers, Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans:wght@400;600;700;800&family=Outfit:wght@500;700;800&family=Rye&display=swap" rel="stylesheet">
+
+    <!-- MediaPipe Hands & Camera Utils -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --wood-dark: #4A2C16;
+            --wood-mid: #6F4322;
+            --wood-light: #9A6338;
+            --gold: #F59E0B;
+            --gold-bright: #FBBF24;
+            --turquoise: #14B8A6;
+            --turquoise-dark: #0D9488;
+            --parchment: #FDF6E3;
+            --parchment-dark: #F2DFBA;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans', 'Outfit', sans-serif;
+            background: radial-gradient(circle at center, #F59E0B 0%, #B45309 55%, #5C3A21 100%);
+            color: #2D1A0E;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-western {
+            font-family: 'Rye', serif;
+            letter-spacing: 0.04em;
+        }
+
+        .font-comic {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 0.06em;
+        }
+
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Tekstur Papan Kayu Wild West */
+        .wood-panel {
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.06) 0px,
+                    rgba(0, 0, 0, 0.06) 2px,
+                    transparent 2px,
+                    transparent 18px
+                ),
+                linear-gradient(180deg, #8B5A2B 0%, #6F4322 50%, #523016 100%);
+            border: 4px solid #3D220E;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 220, 170, 0.35),
+                inset 0 -4px 8px rgba(0, 0, 0, 0.45),
+                0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .wood-btn {
+            background: linear-gradient(180deg, #FBBF24 0%, #F59E0B 60%, #D97706 100%);
+            border: 3px solid #5C3A21;
+            box-shadow: 0 4px 0 #5C3A21, 0 6px 12px rgba(0,0,0,0.3);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
+        }
+
+        .wood-btn:hover {
+            filter: brightness(1.06);
+            transform: translateY(-2px);
+        }
+
+        .wood-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #5C3A21, 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .turquoise-btn {
+            background: linear-gradient(180deg, #2DD4BF 0%, #14B8A6 60%, #0D9488 100%);
+            border: 3px solid #134E4A;
+            box-shadow: 0 4px 0 #134E4A, 0 6px 12px rgba(0,0,0,0.3);
+            transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.15s ease;
+        }
+
+        .turquoise-btn:hover {
+            filter: brightness(1.06);
+            transform: translateY(-2px);
+        }
+
+        .turquoise-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #134E4A;
+        }
+
+        /* Kertas Parchment WANTED */
+        .parchment-box {
+            background:
+                radial-gradient(circle at top left, rgba(255,255,255,0.6), transparent 60%),
+                radial-gradient(circle at bottom right, rgba(180, 130, 70, 0.25), transparent 60%),
+                linear-gradient(135deg, #FDF6E3 0%, #F6E6C4 100%);
+            border: 3px solid #784B2A;
+            box-shadow: inset 0 0 18px rgba(139, 90, 43, 0.25), 0 6px 14px rgba(0,0,0,0.28);
+        }
+
+        .wanted-card {
+            background:
+                radial-gradient(circle at center, #FFFDF7 0%, #F5E3BE 100%);
+            border: 4px solid #6F4322;
+            box-shadow:
+                inset 0 0 0 2px #D9A76A,
+                inset 0 0 15px rgba(111, 67, 34, 0.22),
+                0 6px 12px rgba(0, 0, 0, 0.35);
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, background 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wanted-card::before, .wanted-card::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #5C3A21;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+            top: 6px;
+        }
+        .wanted-card::before { left: 6px; }
+        .wanted-card::after { right: 6px; }
+
+        .wanted-card:hover, .wanted-card.target-locked {
+            transform: translateY(-5px) scale(1.03);
+            border-color: #14B8A6;
+            box-shadow:
+                0 0 0 4px rgba(20, 184, 166, 0.45),
+                0 0 24px rgba(45, 212, 191, 0.8),
+                0 10px 18px rgba(0, 0, 0, 0.4);
+            background: radial-gradient(circle at center, #FFFFFF 0%, #CCFBF1 100%);
+        }
+
+        .wanted-card.card-correct {
+            border-color: #16A34A !important;
+            background: radial-gradient(circle at center, #DCFCE7 0%, #86EFAC 100%) !important;
+            box-shadow: 0 0 28px rgba(34, 197, 94, 0.9) !important;
+            transform: scale(1.05);
+        }
+
+        .wanted-card.card-wrong {
+            border-color: #DC2626 !important;
+            background: radial-gradient(circle at center, #FEE2E2 0%, #FCA5A5 100%) !important;
+            opacity: 0.78;
+        }
+
+        /* Video Kamera Mirrored (HANYA video yang di-mirror) */
+        #webcam-video {
+            transform: scaleX(-1);
+            object-fit: cover;
+        }
+
+        /* Latar Wild West Kartun apabila kamera tidak aktif */
+        .wild-west-bg {
+            background:
+                radial-gradient(circle at 80% 20%, #FDE68A 0%, transparent 22%),
+                linear-gradient(180deg, #38BDF8 0%, #BAE6FD 52%, #FCD34D 52.5%, #F59E0B 75%, #D97706 100%);
+        }
+
+        /* Reticle / Crosshair AR */
+        #ar-reticle {
+            position: fixed;
+            width: 76px;
+            height: 76px;
+            pointer-events: none;
+            z-index: 60;
+            transform: translate(-50%, -50%);
+            transition: width 0.15s ease, height 0.15s ease;
+            display: none;
+        }
+
+        #ar-reticle.locked {
+            width: 94px;
+            height: 94px;
+        }
+
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .reticle-ring {
+            animation: spinSlow 6s linear infinite;
+        }
+
+        @keyframes screenShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+
+        .shake-anim {
+            animation: screenShake 0.4s ease-in-out;
+        }
+
+        @keyframes floatUpFade {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(0.85); }
+            20% { opacity: 1; transform: translate(-50%, -18px) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -85px) scale(1); }
+        }
+
+        .floating-feedback {
+            position: fixed;
+            pointer-events: none;
+            z-index: 80;
+            animation: floatUpFade 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            text-shadow: 0 3px 0 #3D220E, 0 0 12px rgba(255,255,255,0.9);
+        }
+
+        /* Highlight perenggan cerita semasa dibaca */
+        .story-para {
+            transition: all 0.25s ease;
+            border-left: 4px solid transparent;
+        }
+        .story-para.active-reading {
+            background-color: #FEF3C7;
+            border-left-color: #F59E0B;
+            transform: scale(1.015);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.22);
+        }
+
+        /* Ilustrasi CSS Pokok Mangga & Watak */
+        .scene-sky {
+            background: linear-gradient(180deg, #7DD3FC 0%, #E0F2FE 68%, #86EFAC 68.5%, #22C55E 100%);
+        }
+
+        /* Custom scrollbar mesra */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5E6C8;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8B5A2B;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- RETICLE / CROSSHAIR AR (TIDAK DI-MIRROR) -->
+    <div id="ar-reticle">
+        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-lg">
+            <!-- Bulatan luar berputar -->
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#F59E0B" stroke-width="4" stroke-dasharray="14 8" class="reticle-ring" id="reticle-outer-circle"/>
+            <!-- Cincin kemajuan kunci sasaran (Dwell Progress) -->
+            <circle cx="50" cy="50" r="34" fill="none" stroke="#14B8A6" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 50 50)" id="reticle-progress-circle"/>
+            <!-- Garis silang -->
+            <line x1="50" y1="6" x2="50" y2="24" stroke="#FFF" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="50" y1="76" x2="50" y2="94" stroke="#FFF" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="6" y1="50" x2="24" y2="50" stroke="#FFF" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="76" y1="50" x2="94" y2="50" stroke="#FFF" stroke-width="3.5" stroke-linecap="round"/>
+            <!-- Titik tengah -->
+            <circle cx="50" cy="50" r="6" fill="#EF4444" stroke="#FFF" stroke-width="2" id="reticle-dot"/>
+        </svg>
+        <div id="reticle-badge" class="hidden absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap bg-teal-600 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border-2 border-white shadow">
+            🎯 SASARAN DIKUNCI!
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         1. MODAL MULA PERMAINAN (WELCOME SCREEN)
+    ====================================================================== -->
+    <div id="welcome-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/65 backdrop-blur-sm overflow-y-auto">
+        <div class="wood-panel rounded-3xl max-w-3xl w-full p-2 sm:p-3 my-auto">
+            <div class="parchment-box rounded-2xl p-4 sm:p-7 text-center relative overflow-hidden">
+                <!-- Lencana Atas -->
+                <div class="inline-flex items-center gap-2 bg-amber-500 text-amber-950 font-extrabold text-xs sm:text-sm px-4 py-1.5 rounded-full border-2 border-amber-800 shadow mb-3">
+                    <span>🤠 AR Cowboy — Misi Mendengar dan Bertutur</span>
+                </div>
+
+                <h1 class="font-western text-2xl sm:text-4xl md:text-5xl text-amber-900 drop-shadow-sm leading-tight">
+                    🤠 SELAMAT DATANG, COWBOY CILIK!
+                </h1>
+                <p class="font-outfit font-bold text-base sm:text-xl text-teal-800 mt-1">
+                    “Misi Cowboy Cilik: Rahsia Pokok Mangga”
+                </p>
+                <p class="text-sm sm:text-base text-amber-900/90 mt-1 font-medium">
+                    Adakah kamu bersedia untuk misi mendengar dan menangkap jawapan yang betul?
+                </p>
+
+                <!-- Panduan 3 Langkah -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-5 text-left">
+                    <div class="bg-white/85 border-2 border-amber-700/40 rounded-2xl p-3.5 shadow-sm flex sm:flex-col items-center sm:text-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-100 border-2 border-amber-500 flex items-center justify-center text-2xl shrink-0">
+                            🎧
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-700 bg-amber-200/70 px-2 py-0.5 rounded-full">Langkah 1</span>
+                            <h3 class="font-extrabold text-amber-950 text-sm sm:text-base mt-1">DENGAR CERITA</h3>
+                            <p class="text-xs text-amber-900/80 mt-0.5">Dengar cerita <em>Rahsia Pokok Mangga</em> dengan teliti.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/85 border-2 border-teal-700/40 rounded-2xl p-3.5 shadow-sm flex sm:flex-col items-center sm:text-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-teal-100 border-2 border-teal-500 flex items-center justify-center text-2xl shrink-0">
+                            🎯
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-extrabold uppercase tracking-wider text-teal-800 bg-teal-200/70 px-2 py-0.5 rounded-full">Langkah 2</span>
+                            <h3 class="font-extrabold text-teal-950 text-sm sm:text-base mt-1">KUNCI SASARAN</h3>
+                            <p class="text-xs text-teal-900/80 mt-0.5">Gerakkan jari telunjuk di depan kamera atau sentuh kad jawapan.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/85 border-2 border-orange-700/40 rounded-2xl p-3.5 shadow-sm flex sm:flex-col items-center sm:text-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-orange-100 border-2 border-orange-500 flex items-center justify-center text-2xl shrink-0">
+                            ⭐
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-800 bg-orange-200/70 px-2 py-0.5 rounded-full">Langkah 3</span>
+                            <h3 class="font-extrabold text-orange-950 text-sm sm:text-base mt-1">JAWAB &amp; BERTUTUR</h3>
+                            <p class="text-xs text-orange-900/80 mt-0.5">Selesaikan 10 misi soalan dan ceritakan semula kisah!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3 Butang Utama -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mt-4">
+                    <button onclick="startFlowWithStory('camera')" class="turquoise-btn text-white font-extrabold text-sm sm:text-base px-5 py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer">
+                        <span>📹 BUKA KAMERA &amp; MULA</span>
+                    </button>
+                    <button onclick="startFlowWithStory('mouse')" class="wood-btn text-amber-950 font-extrabold text-sm sm:text-base px-5 py-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer">
+                        <span>🖱️ MAIN DENGAN TETIKUS / SENTUHAN</span>
+                    </button>
+                </div>
+
+                <div class="mt-3">
+                    <button onclick="openStoryMode('mouse')" class="inline-flex items-center gap-2 text-amber-900 hover:text-teal-700 font-bold text-sm underline decoration-2 underline-offset-4 py-1.5 px-3 rounded-xl hover:bg-amber-200/50 transition cursor-pointer">
+                        <span>🔊 DENGAR CERITA DAHULU</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         MODAL RALAT / FALLBACK KAMERA
+    ====================================================================== -->
+    <div id="camera-error-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="wood-panel rounded-3xl max-w-md w-full p-2.5">
+            <div class="parchment-box rounded-2xl p-6 text-center">
+                <div class="w-16 h-16 mx-auto rounded-full bg-amber-200 border-4 border-amber-700 flex items-center justify-center text-3xl mb-3">
+                    📷
+                </div>
+                <h2 class="font-western text-xl sm:text-2xl text-amber-900">Kamera Tidak Dapat Diakses</h2>
+                <p id="camera-error-msg" class="text-sm text-amber-950/90 mt-2 leading-relaxed">
+                    Jangan risau, Cowboy Cilik! Kamera tidak ditemui atau kebenaran kamera belum diberikan. Kamu masih boleh bermain sepenuhnya menggunakan tetikus atau sentuhan skrin!
+                </p>
+                <div class="mt-5 flex flex-col gap-2.5">
+                    <button onclick="switchToMouseModeFromError()" class="wood-btn text-amber-950 font-extrabold py-3 px-5 rounded-2xl text-sm sm:text-base cursor-pointer">
+                        🖱️ TERUSKAN DENGAN TETIKUS / SENTUHAN
+                    </button>
+                    <button onclick="retryCamera()" class="text-xs font-bold text-teal-800 hover:underline py-1.5 cursor-pointer">
+                        🔄 Cuba Akses Kamera Semula
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         2. MOD CERITA / LISTENING MODE (RAHSIA POKOK MANGGA)
+    ====================================================================== -->
+    <div id="story-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center p-2.5 sm:p-5 bg-black/75 backdrop-blur-sm overflow-y-auto">
+        <div class="wood-panel rounded-3xl max-w-4xl w-full p-2 sm:p-3 my-auto max-h-[95vh] flex flex-col">
+            <div class="parchment-box rounded-2xl p-4 sm:p-6 flex flex-col overflow-y-auto">
+                <!-- Header Cerita -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-amber-800/20 pb-3">
+                    <div>
+                        <span class="text-xs font-extrabold uppercase tracking-wider bg-teal-600 text-white px-3 py-1 rounded-full">
+                            🎧 Mod Mendengar Cerita
+                        </span>
+                        <h2 class="font-western text-xl sm:text-3xl text-amber-900 mt-1.5">
+                            📖 Rahsia Pokok Mangga
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="toggle-text-mode-btn" onclick="toggleStoryTextVisibility()" class="bg-amber-200 hover:bg-amber-300 text-amber-950 border-2 border-amber-700 font-bold text-xs sm:text-sm px-3 py-2 rounded-xl transition cursor-pointer">
+                            📖 Mod: Dengar &amp; Baca
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Arahan -->
+                <div class="bg-amber-100 border-2 border-amber-500 rounded-2xl px-4 py-2.5 mt-3 text-xs sm:text-sm font-bold text-amber-950 flex items-center gap-2.5">
+                    <span class="text-xl shrink-0">🤠</span>
+                    <span>“🎧 Dengar cerita dengan teliti. Ingat watak, peristiwa dan tindakan mereka. Selepas itu, jawab 10 misi cowboy!”</span>
+                </div>
+
+                <!-- Ilustrasi Kartun CSS Adegan Cerita -->
+                <div class="scene-sky relative rounded-2xl border-3 border-amber-800 h-44 sm:h-52 mt-3 overflow-hidden shadow-inner shrink-0">
+                    <!-- Matahari & Awan -->
+                    <div class="absolute top-3 right-6 w-12 h-12 rounded-full bg-yellow-300 border-2 border-amber-400 shadow-[0_0_20px_#FDE047] flex items-center justify-center text-xl">☀️</div>
+                    <div class="absolute top-4 left-8 text-3xl opacity-90">☁️</div>
+                    <div class="absolute top-7 left-1/3 text-2xl opacity-80">☁️</div>
+
+                    <!-- Jalan ke Sekolah -->
+                    <div class="absolute bottom-0 inset-x-0 h-14 bg-amber-200/90 border-t-4 border-amber-600/50 flex items-center justify-between px-4">
+                        <span class="text-[11px] font-extrabold text-amber-900 bg-white/80 px-2 py-0.5 rounded-full border border-amber-600">🏫 Jalan ke Sekolah</span>
+                        <span class="text-[11px] font-extrabold text-green-900 bg-white/80 px-2 py-0.5 rounded-full border border-green-600">🌳 Bawah Pokok Mangga</span>
+                    </div>
+
+                    <!-- Pokok Mangga Kartun -->
+                    <div class="absolute bottom-10 right-6 sm:right-14 flex flex-col items-center">
+                        <!-- Dedaun & Buah Mangga -->
+                        <div class="relative w-28 h-24 sm:w-32 sm:h-28 bg-green-600 rounded-full border-4 border-green-800 shadow-md flex items-center justify-center">
+                            <div class="w-20 h-16 bg-green-500 rounded-full -mt-2"></div>
+                            <span class="absolute top-4 left-5 text-lg">🥭</span>
+                            <span class="absolute top-7 right-5 text-lg">🥭</span>
+                            <span class="absolute bottom-4 left-10 text-lg">🥭</span>
+                        </div>
+                        <!-- Batang Pokok -->
+                        <div class="w-7 h-14 bg-amber-800 border-x-4 border-amber-950 -mt-2"></div>
+                    </div>
+
+                    <!-- Watak-Watak Kartun -->
+                    <div class="absolute bottom-7 left-3 sm:left-8 flex items-end gap-2 sm:gap-4">
+                        <!-- Hana -->
+                        <div class="flex flex-col items-center bg-white/90 px-2 py-1 rounded-2xl border-2 border-pink-500 shadow">
+                            <span class="text-2xl sm:text-3xl">👧🏻</span>
+                            <span class="text-[10px] sm:text-xs font-extrabold text-pink-800">Hana 🎒</span>
+                        </div>
+                        <!-- Amir -->
+                        <div class="flex flex-col items-center bg-white/90 px-2 py-1 rounded-2xl border-2 border-blue-500 shadow">
+                            <span class="text-2xl sm:text-3xl">👦🏻</span>
+                            <span class="text-[10px] sm:text-xs font-extrabold text-blue-800">Amir 🥪</span>
+                        </div>
+                        <!-- Daniel -->
+                        <div class="flex flex-col items-center bg-white/90 px-2 py-1 rounded-2xl border-2 border-teal-600 shadow">
+                            <span class="text-2xl sm:text-3xl">🧒🏽</span>
+                            <span class="text-[10px] sm:text-xs font-extrabold text-teal-800">Daniel</span>
+                        </div>
+                    </div>
+
+                    <!-- Anak Kucing Mimi di bawah pokok mangga -->
+                    <div class="absolute bottom-6 right-16 sm:right-24 flex flex-col items-center bg-amber-50/95 px-2.5 py-1 rounded-2xl border-2 border-orange-500 shadow animate-bounce">
+                        <span class="text-2xl sm:text-3xl">🐱</span>
+                        <span class="text-[10px] sm:text-xs font-extrabold text-orange-800">Mimi</span>
+                    </div>
+                </div>
+
+                <!-- Kawalan Audio TTS Cerita -->
+                <div class="flex flex-wrap items-center justify-center gap-2 my-3">
+                    <button onclick="playStoryTTS()" class="turquoise-btn text-white font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl cursor-pointer">
+                        🔊 DENGAR CERITA
+                    </button>
+                    <button onclick="restartStoryTTS()" class="bg-amber-500 hover:bg-amber-600 text-white border-2 border-amber-800 font-extrabold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow cursor-pointer">
+                        🔁 ULANG CERITA
+                    </button>
+                    <button onclick="pauseStoryTTS()" class="bg-orange-500 hover:bg-orange-600 text-white border-2 border-orange-800 font-extrabold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow cursor-pointer">
+                        ⏸️ JEDA
+                    </button>
+                    <button onclick="resumeStoryTTS()" class="bg-green-600 hover:bg-green-700 text-white border-2 border-green-900 font-extrabold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow cursor-pointer">
+                        ▶️ SAMBUNG
+                    </button>
+                </div>
+
+                <!-- Status Bacaan -->
+                <div id="tts-status-bar" class="text-center text-xs font-bold text-teal-800 mb-2">
+                    Tekan butang “🔊 DENGAR CERITA” untuk mendengar kisah Rahsia Pokok Mangga.
+                </div>
+
+                <!-- Paparan Teks Cerita Berperingkat -->
+                <div id="story-text-container" class="bg-white/90 border-2 border-amber-700/40 rounded-2xl p-3.5 sm:p-5 space-y-2.5 text-sm sm:text-base leading-relaxed text-amber-950 max-h-56 overflow-y-auto shadow-inner">
+                    <!-- Dijana oleh JS -->
+                </div>
+
+                <!-- Mod Mendengar Sahaja Placeholder -->
+                <div id="listening-only-placeholder" class="hidden bg-amber-100/90 border-2 border-dashed border-amber-700 rounded-2xl p-6 text-center">
+                    <div class="text-4xl mb-2 animate-pulse">🎧</div>
+                    <p class="font-extrabold text-amber-900 text-base">Mod Mendengar Sahaja Aktif</p>
+                    <p class="text-xs sm:text-sm text-amber-800 mt-1">Tumpukan perhatian pada suara pencerita. Tekan “📖 Mod: Dengar &amp; Baca” jika ingin melihat teks cerita.</p>
+                </div>
+
+                <!-- Butang Teruskan ke Kuiz -->
+                <div class="mt-4 pt-3 border-t-2 border-amber-800/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <button onclick="backToWelcomeFromStory()" class="text-xs sm:text-sm font-bold text-amber-900 hover:underline cursor-pointer">
+                        ← Kembali ke Menu Utama
+                    </button>
+                    <button onclick="startQuizFromStory()" class="wood-btn text-amber-950 font-extrabold text-sm sm:text-lg px-6 py-3 rounded-2xl w-full sm:w-auto cursor-pointer">
+                        🎯 MULA KUIZ 10 MISI! →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         3. SKRIN PERMAINAN UTAMA (AR CAMERA / MOUSE & TOUCH)
+    ====================================================================== -->
+    <main id="game-screen" class="hidden relative w-full h-screen overflow-hidden flex flex-col justify-between">
+        <!-- LATAR BELAKANG: KAMERA AR (MIRRORED) ATAU LATAR WILD WEST KARTUN -->
+        <div id="ar-background" class="absolute inset-0 z-0 wild-west-bg overflow-hidden">
+            <!-- Video Webcam (Hanya elemen ini di-mirror scaleX(-1)) -->
+            <video id="webcam-video" autoplay playsinline muted class="hidden w-full h-full object-cover"></video>
+            <!-- Kanvas overlay kecil untuk kesan zarah / debug titik jari jika perlu -->
+            <canvas id="particle-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+            <!-- Hiasan Wild West di sisi apabila mod tanpa kamera -->
+            <div id="decorative-desert" class="absolute inset-0 pointer-events-none flex items-end justify-between px-4 pb-28 opacity-45">
+                <span class="text-6xl sm:text-8xl">🌵</span>
+                <span class="text-5xl sm:text-7xl">🤠</span>
+                <span class="text-6xl sm:text-8xl">🌵</span>
+            </div>
+        </div>
+
+        <!-- BAHAGIAN ATAS: HUD PERMAINAN & PAPAN SOALAN (TIDAK DI-MIRROR) -->
+        <header class="relative z-20 p-2 sm:p-3 flex flex-col gap-2 max-w-6xl w-full mx-auto">
+            <!-- Bar HUD Utama -->
+            <div class="wood-panel rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 text-white flex flex-wrap items-center justify-between gap-2">
+                <!-- Tajuk & Pusingan -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="font-western text-sm sm:text-lg text-amber-300 drop-shadow">🤠 AR COWBOY</span>
+                    <span id="hud-round-badge" class="bg-teal-600 border border-teal-300 text-white text-[11px] sm:text-xs font-extrabold px-2.5 py-0.5 rounded-full">
+                        ROUND 1 / 5
+                    </span>
+                    <span id="hud-question-num" class="bg-amber-500 text-amber-950 text-[11px] sm:text-xs font-extrabold px-2.5 py-0.5 rounded-full">
+                        🎯 SOALAN 1 / 10
+                    </span>
+                </div>
+
+                <!-- Skor Bounty & Combo -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="bg-black/35 border border-amber-400/60 px-3 py-1 rounded-xl flex items-center gap-1.5">
+                        <span class="text-sm sm:text-base">⭐</span>
+                        <span class="text-[11px] sm:text-xs font-bold text-amber-200">BOUNTY:</span>
+                        <span id="hud-score" class="font-outfit font-extrabold text-sm sm:text-lg text-amber-300">0</span>
+                    </div>
+                    <div class="bg-black/35 border border-orange-400/60 px-3 py-1 rounded-xl flex items-center gap-1.5">
+                        <span class="text-sm sm:text-base">🔥</span>
+                        <span class="text-[11px] sm:text-xs font-bold text-orange-200">COMBO:</span>
+                        <span id="hud-combo" class="font-outfit font-extrabold text-sm sm:text-lg text-orange-300">x1</span>
+                    </div>
+                </div>
+
+                <!-- Status Kamera & Butang Bantuan -->
+                <div class="flex items-center gap-1.5">
+                    <span id="hud-tracking-status" class="hidden md:inline-flex items-center gap-1.5 text-[11px] font-bold bg-black/40 border border-white/20 px-2.5 py-1 rounded-full text-teal-200">
+                        <span class="w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
+                        <span id="hud-tracking-text">Mod Tetikus</span>
+                    </span>
+                    <button onclick="openStoryMode('ingame')" title="Baca atau Dengar Semula Cerita" class="bg-amber-100 hover:bg-white text-amber-950 font-extrabold text-xs px-2.5 py-1.5 rounded-xl border-2 border-amber-800 cursor-pointer">
+                        📖 Cerita
+                    </button>
+                    <button id="toggle-cam-btn" onclick="toggleCameraMode()" title="Tukar Mod Kamera / Tetikus" class="bg-teal-100 hover:bg-white text-teal-950 font-extrabold text-xs px-2.5 py-1.5 rounded-xl border-2 border-teal-800 cursor-pointer">
+                        📹 Kamera
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-amber-950/70 h-2.5 rounded-full overflow-hidden border border-amber-400/50 shadow">
+                <div id="hud-progress-bar" class="h-full bg-gradient-to-r from-teal-400 via-amber-400 to-orange-500 transition-all duration-500" style="width: 10%;"></div>
+            </div>
+
+            <!-- Papan Soalan Padat (Supaya kawasan tengah kamera kekal lapang) -->
+            <div id="question-board" class="parchment-box rounded-2xl px-3.5 py-2.5 sm:px-5 sm:py-3 max-w-4xl w-full mx-auto">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                    <div class="flex items-center gap-2">
+                        <span id="round-title-label" class="text-[11px] sm:text-xs font-extrabold uppercase tracking-wide text-amber-800 bg-amber-200/90 px-2.5 py-0.5 rounded-full border border-amber-600/40">
+                            Pusingan 1: Kenali Watak
+                        </span>
+                        <span id="question-type-label" class="text-[11px] sm:text-xs font-bold text-teal-800 bg-teal-100 px-2.5 py-0.5 rounded-full border border-teal-600/30">
+                            Soalan Watak
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="speakCurrentQuestion()" class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-[11px] sm:text-xs px-2.5 py-1 rounded-xl shadow cursor-pointer">
+                            🔊 Baca Soalan
+                        </button>
+                        <button onclick="showAndSpeakHint()" class="turquoise-btn text-white font-extrabold text-[11px] sm:text-xs px-2.5 py-1 rounded-xl cursor-pointer">
+                            🔊 DENGAR PETUNJUK
+                        </button>
+                    </div>
+                </div>
+
+                <h2 id="question-text" class="font-outfit font-extrabold text-base sm:text-xl md:text-2xl text-amber-950 leading-snug">
+                    Siapakah yang berjalan ke sekolah pada suatu pagi?
+                </h2>
+
+                <!-- Kotak Maklum Balas & Petunjuk Ringkas -->
+                <div id="feedback-banner" class="hidden mt-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-between gap-2">
+                    <span id="feedback-banner-text"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- BAHAGIAN TENGAH: KAWASAN KAMERA AR LAPANG (WAJAH & GERAKAN TANGAN JELAS) -->
+        <section class="relative z-10 flex-1 flex items-center justify-center pointer-events-none px-4">
+            <!-- Panduan kecil di penjuru apabila kamera aktif -->
+            <div id="ar-hand-guide" class="hidden bg-black/55 backdrop-blur-xs text-white text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full border border-teal-400/60 shadow-lg">
+                ☝️ Halakan jari telunjuk pada kad jawapan selama 1 saat untuk memilih!
+            </div>
+        </section>
+
+        <!-- BAHAGIAN BAWAH: 4 KAD SASARAN JAWAPAN BERGAYA WANTED (TIDAK DI-MIRROR) -->
+        <footer class="relative z-20 p-2 sm:p-3.5 max-w-6xl w-full mx-auto">
+            <!-- Butang Pilih Manual untuk sasaran yang dikunci (berguna untuk mod kamera/aksesibiliti) -->
+            <div id="manual-lock-bar" class="hidden justify-center mb-2">
+                <button onclick="confirmLockedTarget()" class="turquoise-btn text-white font-extrabold text-xs sm:text-sm px-5 py-2 rounded-full shadow-lg animate-bounce cursor-pointer">
+                    🎯 PILIH JAWAPAN DIKUNCI
+                </button>
+            </div>
+
+            <!-- Grid Kad Wanted: 2x2 pada telefon, 4 sebaris pada skrin besar (atau 2 kad untuk Betul/Salah) -->
+            <div id="cards-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
+                <!-- Kad jawapan dijana secara dinamik oleh JavaScript -->
+            </div>
+        </footer>
+    </main>
+
+    <!-- =====================================================================
+         4. MODAL TAMAT KUIZ (VICTORY MODAL)
+    ====================================================================== -->
+    <div id="victory-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm overflow-y-auto">
+        <div class="wood-panel rounded-3xl max-w-2xl w-full p-2.5 sm:p-3 my-auto">
+            <div class="parchment-box rounded-2xl p-5 sm:p-7 text-center">
+                <div class="inline-block bg-amber-500 text-amber-950 font-extrabold text-xs sm:text-sm px-4 py-1 rounded-full border-2 border-amber-800 mb-2">
+                    🏆 LAPORAN SHERIFF WILAYAH WILD WEST
+                </div>
+                <h2 class="font-western text-2xl sm:text-4xl text-amber-900">
+                    🤠 MISI SELESAI!
+                </h2>
+                <p class="text-sm sm:text-base font-bold text-teal-800 mt-1">
+                    “Hebat, Cowboy Cilik! Kamu berjaya menyelesaikan Misi Dengar dan Faham!”
+                </p>
+
+                <!-- Paparan Bintang -->
+                <div id="victory-stars" class="text-4xl sm:text-5xl my-3 tracking-widest drop-shadow">
+                    ⭐⭐⭐
+                </div>
+
+                <!-- Grid Statistik -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 my-4 text-left">
+                    <div class="bg-white/90 border-2 border-amber-700/40 rounded-2xl p-3">
+                        <div class="text-[11px] font-extrabold text-amber-700">🏆 BOUNTY</div>
+                        <div id="stat-bounty" class="font-outfit font-extrabold text-xl sm:text-2xl text-amber-950">0</div>
+                    </div>
+                    <div class="bg-white/90 border-2 border-green-700/40 rounded-2xl p-3">
+                        <div class="text-[11px] font-extrabold text-green-700">🎯 JAWAPAN BETUL</div>
+                        <div id="stat-correct" class="font-outfit font-extrabold text-xl sm:text-2xl text-green-800">10/10</div>
+                    </div>
+                    <div class="bg-white/90 border-2 border-teal-700/40 rounded-2xl p-3">
+                        <div class="text-[11px] font-extrabold text-teal-700">📊 KETEPATAN</div>
+                        <div id="stat-accuracy" class="font-outfit font-extrabold text-xl sm:text-2xl text-teal-900">100%</div>
+                    </div>
+                    <div class="bg-white/90 border-2 border-orange-700/40 rounded-2xl p-3">
+                        <div class="text-[11px] font-extrabold text-orange-700">🔥 COMBO TERTINGGI</div>
+                        <div id="stat-max-combo" class="font-outfit font-extrabold text-xl sm:text-2xl text-orange-800">x1</div>
+                    </div>
+                    <div class="bg-white/90 border-2 border-red-700/30 rounded-2xl p-3">
+                        <div class="text-[11px] font-extrabold text-red-700">❌ CUBAAN SALAH</div>
+                        <div id="stat-wrong" class="font-outfit font-extrabold text-xl sm:text-2xl text-red-800">0</div>
+                    </div>
+                    <div class="bg-white/90 border-2 border-yellow-600/50 rounded-2xl p-3">
+                        <div class="text-[11px] font-extrabold text-yellow-700">⭐ BINTANG</div>
+                        <div id="stat-stars-count" class="font-outfit font-extrabold text-xl sm:text-2xl text-yellow-800">3 Bintang</div>
+                    </div>
+                </div>
+
+                <!-- Butang Tindakan -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mt-5">
+                    <button onclick="openSpeakingMission()" class="turquoise-btn text-white font-extrabold text-sm sm:text-base px-6 py-3.5 rounded-2xl cursor-pointer">
+                        🎤 MISI BERTUTUR
+                    </button>
+                    <button onclick="restartQuiz()" class="wood-btn text-amber-950 font-extrabold text-sm sm:text-base px-5 py-3.5 rounded-2xl cursor-pointer">
+                        🔄 MAIN SEMULA
+                    </button>
+                    <button onclick="returnToMainMenu()" class="bg-amber-200 hover:bg-amber-300 text-amber-950 border-2 border-amber-800 font-extrabold text-sm sm:text-base px-5 py-3.5 rounded-2xl cursor-pointer">
+                        🏠 KE MENU
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         5. MISI BERTUTUR: CERITAKAN KEMBALI (STORY SEQUENCING & SPEAKING)
+    ====================================================================== -->
+    <div id="speaking-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-5 bg-black/75 backdrop-blur-sm overflow-y-auto">
+        <div class="wood-panel rounded-3xl max-w-4xl w-full p-2 sm:p-3 my-auto max-h-[95vh] flex flex-col">
+            <div class="parchment-box rounded-2xl p-4 sm:p-6 overflow-y-auto space-y-5">
+                <!-- Header Misi Bertutur -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-amber-800/20 pb-3">
+                    <div>
+                        <span class="text-xs font-extrabold uppercase tracking-wider bg-orange-500 text-white px-3 py-1 rounded-full">
+                            🎤 Misi Cowboy Bercerita
+                        </span>
+                        <h2 class="font-western text-xl sm:text-3xl text-amber-900 mt-1.5">
+                            🎤 MISI BERTUTUR: CERITAKAN KEMBALI!
+                        </h2>
+                    </div>
+                    <button onclick="returnToMainMenu()" class="bg-amber-200 hover:bg-amber-300 text-amber-950 border-2 border-amber-800 font-bold text-xs sm:text-sm px-3 py-2 rounded-xl cursor-pointer">
+                        🏠 Menu Utama
+                    </button>
+                </div>
+
+                <!-- Bahagian A: Susun 5 Kad Urutan Cerita -->
+                <div class="bg-white/85 border-2 border-amber-700/40 rounded-2xl p-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <h3 class="font-extrabold text-amber-950 text-base sm:text-lg">
+                            1️⃣ Langkah Pertama: Susun 5 Kad Urutan Cerita
+                        </h3>
+                        <button onclick="shuffleSequenceCards()" class="text-xs font-extrabold bg-amber-200 hover:bg-amber-300 text-amber-950 px-3 py-1.5 rounded-xl border border-amber-700 cursor-pointer">
+                            🔀 Kocok Semula Kad
+                        </button>
+                    </div>
+                    <p class="text-xs sm:text-sm text-amber-900/85 mb-3">
+                        Gunakan butang anak panah <strong>⬆️ Naik</strong> atau <strong>⬇️ Turun</strong> untuk menyusun peristiwa cerita mengikut urutan yang betul dari atas ke bawah.
+                    </p>
+
+                    <div id="sequence-cards-list" class="space-y-2">
+                        <!-- 5 kad urutan dijana oleh JS -->
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                        <button onclick="checkSequenceOrder()" class="wood-btn text-amber-950 font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-xl cursor-pointer">
+                            ✅ SEMAK SUSUNAN CERITA
+                        </button>
+                        <span id="sequence-feedback" class="text-xs sm:text-sm font-extrabold"></span>
+                    </div>
+                </div>
+
+                <!-- Bahagian B: Bercerita Secara Lisan & Rakaman Suara -->
+                <div class="bg-white/85 border-2 border-teal-700/40 rounded-2xl p-4">
+                    <h3 class="font-extrabold text-teal-950 text-base sm:text-lg">
+                        2️⃣ Langkah Kedua: Ceritakan Semula Secara Lisan
+                    </h3>
+                    <p class="text-xs sm:text-sm text-teal-900 mt-1">
+                        “🎤 Ceritakan semula cerita <strong>Rahsia Pokok Mangga</strong> menggunakan ayat kamu sendiri dengan sebutan yang jelas dan sopan.”
+                    </p>
+
+                    <!-- Panduan Penanda Wacana -->
+                    <div class="bg-teal-50 border border-teal-300 rounded-xl p-3 my-3">
+                        <div class="text-xs font-extrabold text-teal-900 mb-1.5">💡 Gunakan Penanda Wacana Ini Semasa Bercerita:</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="bg-white border border-teal-500 text-teal-900 font-bold text-xs px-2.5 py-1 rounded-full shadow-2xs">Pada suatu pagi,</span>
+                            <span class="bg-white border border-teal-500 text-teal-900 font-bold text-xs px-2.5 py-1 rounded-full shadow-2xs">Kemudian,</span>
+                            <span class="bg-white border border-teal-500 text-teal-900 font-bold text-xs px-2.5 py-1 rounded-full shadow-2xs">Selepas itu,</span>
+                            <span class="bg-white border border-teal-500 text-teal-900 font-bold text-xs px-2.5 py-1 rounded-full shadow-2xs">Tiba-tiba,</span>
+                            <span class="bg-white border border-teal-500 text-teal-900 font-bold text-xs px-2.5 py-1 rounded-full shadow-2xs">Akhir sekali,</span>
+                        </div>
+                    </div>
+
+                    <!-- Kawalan Rakaman / Bertutur -->
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button id="record-voice-btn" onclick="toggleVoiceRecording()" class="bg-red-600 hover:bg-red-700 text-white border-2 border-red-900 font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow cursor-pointer">
+                            🎙️ RAKAM SUARA
+                        </button>
+                        <button onclick="startOralPracticeMode()" class="turquoise-btn text-white font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl cursor-pointer">
+                            🗣️ CERITAKAN SECARA LISAN
+                        </button>
+                        <button onclick="openStoryMode('speaking')" class="bg-amber-200 hover:bg-amber-300 text-amber-950 border-2 border-amber-700 font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl cursor-pointer">
+                            🔄 ULANG CERITA
+                        </button>
+                    </div>
+
+                    <!-- Status Rakaman & Pemain Audio Tempatan (Tiada Server) -->
+                    <div id="recording-panel" class="hidden mt-3 bg-amber-50 border-2 border-amber-400 rounded-xl p-3 space-y-2">
+                        <div id="recording-status-text" class="text-xs sm:text-sm font-extrabold text-red-700 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span>
+                            <span>Sedang merakam suara... Berceritalah dengan yakin!</span>
+                        </div>
+                        <div id="speech-transcript-box" class="hidden text-xs bg-white p-2.5 rounded-lg border border-amber-300 text-amber-950">
+                            <strong>Transkripsi Lisan:</strong> <span id="speech-transcript-text" class="italic">...</span>
+                        </div>
+                        <audio id="recorded-audio-player" controls class="hidden w-full h-9 mt-1"></audio>
+                    </div>
+                </div>
+
+                <!-- Bahagian C: Rubrik Penilaian Bertutur -->
+                <div class="bg-white/85 border-2 border-amber-700/40 rounded-2xl p-4">
+                    <h3 class="font-extrabold text-amber-950 text-base sm:text-lg mb-2">
+                        3️⃣ Rubrik Penilaian Bertutur (Pilih Tahap Pencapaian)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                        <button onclick="selectSpeakingRubric(3)" id="rubric-card-3" class="rubric-card text-left p-3 rounded-2xl border-2 border-amber-400 bg-amber-50/70 hover:bg-amber-100 transition cursor-pointer">
+                            <div class="text-lg">⭐⭐⭐</div>
+                            <div class="font-extrabold text-sm text-amber-950 mt-0.5">3 Bintang (Cemerlang)</div>
+                            <ul class="text-xs text-amber-900 mt-1 space-y-0.5 list-disc list-inside">
+                                <li>Menceritakan semula dengan jelas.</li>
+                                <li>Menggunakan urutan peristiwa betul.</li>
+                                <li>Sebutan dan intonasi sesuai.</li>
+                            </ul>
+                        </button>
+
+                        <button onclick="selectSpeakingRubric(2)" id="rubric-card-2" class="rubric-card text-left p-3 rounded-2xl border-2 border-teal-400 bg-teal-50/70 hover:bg-teal-100 transition cursor-pointer">
+                            <div class="text-lg">⭐⭐</div>
+                            <div class="font-extrabold text-sm text-teal-950 mt-0.5">2 Bintang (Baik)</div>
+                            <ul class="text-xs text-teal-900 mt-1 space-y-0.5 list-disc list-inside">
+                                <li>Menceritakan sebahagian peristiwa.</li>
+                                <li>Terdapat sedikit kesilapan urutan.</li>
+                                <li>Sebutan masih boleh difahami.</li>
+                            </ul>
+                        </button>
+
+                        <button onclick="selectSpeakingRubric(1)" id="rubric-card-1" class="rubric-card text-left p-3 rounded-2xl border-2 border-orange-400 bg-orange-50/70 hover:bg-orange-100 transition cursor-pointer">
+                            <div class="text-lg">⭐</div>
+                            <div class="font-extrabold text-sm text-orange-950 mt-0.5">1 Bintang (Usaha Lagi)</div>
+                            <ul class="text-xs text-orange-900 mt-1 space-y-0.5 list-disc list-inside">
+                                <li>Memerlukan bantuan guru.</li>
+                                <li>Menceritakan sedikit maklumat sahaja.</li>
+                            </ul>
+                        </button>
+                    </div>
+
+                    <div id="rubric-result-banner" class="hidden mt-3 p-3 rounded-xl bg-green-100 border-2 border-green-600 text-green-950 font-extrabold text-xs sm:text-sm text-center">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         JAVASCRIPT: LOGIK PERMAINAN, WEB AUDIO API, MEDIAPIPE AR & SPEECH
+    ====================================================================== -->
+    <script>
+        /* =====================================================================
+           1. SINTESIS BUNYI PROSEDURAL (WEB AUDIO API - TIADA FAIL LUARAN)
+        ===================================================================== */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.2, startTime = 0, gainVal = 0.18) {
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime + startTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, now);
+
+                gain.gain.setValueAtTime(0.001, now);
+                gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + duration + 0.02);
+            }
+
+            // Bunyi mula permainan (Fanfare ceria)
+            playStart() {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((n, i) => this.playTone(n, 'triangle', 0.22, i * 0.09, 0.2));
+            }
+
+            // Bunyi sasaran dikunci (Ding tajam)
+            playLock() {
+                this.playTone(1174.66, 'sine', 0.14, 0, 0.14);
+                this.playTone(1567.98, 'sine', 0.18, 0.04, 0.1);
+            }
+
+            // Bunyi jawapan betul (Crystal chord)
+            playCorrect() {
+                const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+                chord.forEach((n, i) => this.playTone(n, 'sine', 0.35, i * 0.055, 0.18));
+            }
+
+            // Bunyi jawapan salah (Low thud lembut)
+            playWrong() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(190, now);
+                osc.frequency.exponentialRampToValueAtTime(85, now + 0.28);
+
+                gain.gain.setValueAtTime(0.22, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.32);
+            }
+
+            // Bunyi combo meningkat
+            playCombo(comboCount) {
+                const base = 600 + Math.min(comboCount, 8) * 65;
+                this.playTone(base, 'sine', 0.15, 0, 0.16);
+                this.playTone(base * 1.25, 'triangle', 0.22, 0.07, 0.18);
+            }
+
+            // Bunyi peralihan pusingan
+            playRoundTransition() {
+                const notes = [440, 554.37, 659.25];
+                notes.forEach((n, i) => this.playTone(n, 'triangle', 0.2, i * 0.08, 0.15));
+            }
+
+            // Bunyi kemenangan tamat kuiz
+            playVictory() {
+                const melody = [
+                    { f: 523.25, t: 0.0, d: 0.16 },
+                    { f: 659.25, t: 0.16, d: 0.16 },
+                    { f: 783.99, t: 0.32, d: 0.16 },
+                    { f: 1046.50, t: 0.48, d: 0.35 },
+                    { f: 783.99, t: 0.85, d: 0.16 },
+                    { f: 1046.50, t: 1.05, d: 0.5 }
+                ];
+                melody.forEach(m => this.playTone(m.f, 'triangle', m.d, m.t, 0.22));
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        /* =====================================================================
+           2. DATA CERITA & BANK 10 SOALAN RASMI (5 PUSINGAN)
+        ===================================================================== */
+        const STORY_PARAGRAPHS = [
+            "Pada suatu pagi, Hana dan Amir berjalan ke sekolah. Mereka ternampak seekor anak kucing berada di bawah pokok mangga. Anak kucing itu kelihatan lapar dan ketakutan.",
+            "Hana segera menghampiri anak kucing tersebut. “Amir, kasihan anak kucing ini. Mari kita bantu,” kata Hana.",
+            "Amir mengeluarkan sedikit makanan dari bekalnya lalu memberikannya kepada anak kucing itu. Anak kucing tersebut makan dengan lahap.",
+            "Tiba-tiba, mereka terdengar suara seorang budak lelaki memanggil dari belakang. “Mimi! Mimi! Di manakah kamu?”",
+            "Budak lelaki itu bernama Daniel. Dia sedang mencari anak kucingnya yang hilang. Hana menunjukkan anak kucing itu kepada Daniel. Daniel sangat gembira lalu mengucapkan terima kasih kepada Hana dan Amir.",
+            "“Terima kasih kerana membantu saya mencari Mimi,” kata Daniel. Hana dan Amir tersenyum. Mereka berasa gembira kerana dapat membantu Daniel dan anak kucingnya. Mereka meneruskan perjalanan ke sekolah dengan hati yang ceria."
+        ];
+
+        const QUESTIONS_BANK = [
+            // PUSINGAN 1: Kenali Watak (Soalan 1-2)
+            {
+                id: 1,
+                round: 1,
+                roundName: "Pusingan 1: Kenali Watak",
+                typeLabel: "Soalan Watak",
+                question: "Siapakah yang berjalan ke sekolah pada suatu pagi?",
+                hint: "Ingat dua orang murid yang berjalan bersama-sama ke sekolah pada awal cerita.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Hana dan Daniel", emoji: "👧🏻🧒🏽", correct: false },
+                    { text: "Hana dan Amir", emoji: "👧🏻👦🏻", correct: true },
+                    { text: "Amir dan Daniel", emoji: "👦🏻🧒🏽", correct: false },
+                    { text: "Daniel dan Mimi", emoji: "🧒🏽🐱", correct: false }
+                ]
+            },
+            {
+                id: 2,
+                round: 1,
+                roundName: "Pusingan 1: Kenali Watak",
+                typeLabel: "Soalan Maklumat Cerita",
+                question: "Apakah yang mereka ternampak di bawah pokok mangga?",
+                hint: "Haiwan kecil yang comel ini berbunyi ‘meow’ dan sedang kelaparan.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Seekor burung", emoji: "🐦", correct: false },
+                    { text: "Sebuah beg sekolah", emoji: "🎒", correct: false },
+                    { text: "Seekor anak kucing", emoji: "🐱", correct: true },
+                    { text: "Seekor arnab", emoji: "🐰", correct: false }
+                ]
+            },
+            // PUSINGAN 2: Fahami Peristiwa (Soalan 3-4)
+            {
+                id: 3,
+                round: 2,
+                roundName: "Pusingan 2: Fahami Peristiwa",
+                typeLabel: "Soalan Peristiwa",
+                question: "Bagaimanakah keadaan anak kucing yang ditemukan oleh Hana dan Amir?",
+                hint: "Anak kucing itu belum makan dan berasa takut berada sendirian.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Lapar dan ketakutan", emoji: "😿", correct: true },
+                    { text: "Sihat dan gembira", emoji: "😸", correct: false },
+                    { text: "Marah dan agresif", emoji: "😾", correct: false },
+                    { text: "Tidur dengan nyenyak", emoji: "💤", correct: false }
+                ]
+            },
+            {
+                id: 4,
+                round: 2,
+                roundName: "Pusingan 2: Fahami Peristiwa",
+                typeLabel: "Soalan Peristiwa",
+                question: "Apakah yang dilakukan oleh Amir untuk membantu anak kucing itu?",
+                hint: "Amir membuka bekal yang dibawanya ke sekolah untuk diberikan kepada Mimi.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Membawanya ke rumah", emoji: "🏠", correct: false },
+                    { text: "Memberikan sedikit makanan", emoji: "🥪", correct: true },
+                    { text: "Membelikan mainan", emoji: "🧶", correct: false },
+                    { text: "Memandikannya", emoji: "🛁", correct: false }
+                ]
+            },
+            // PUSINGAN 3: Ingat Maklumat (Soalan 5-6)
+            {
+                id: 5,
+                round: 3,
+                roundName: "Pusingan 3: Ingat Maklumat",
+                typeLabel: "Soalan Maklumat Cerita",
+                question: "Apakah nama anak kucing yang hilang itu?",
+                hint: "Dengar kembali panggilan budak lelaki itu: ‘... Di manakah kamu?’",
+                isTrueFalse: false,
+                options: [
+                    { text: "Tommy", emoji: "🐈", correct: false },
+                    { text: "Bella", emoji: "🐩", correct: false },
+                    { text: "Mimi", emoji: "🐱", correct: true },
+                    { text: "Luna", emoji: "🌙", correct: false }
+                ]
+            },
+            {
+                id: 6,
+                round: 3,
+                roundName: "Pusingan 3: Ingat Maklumat",
+                typeLabel: "Soalan Watak",
+                question: "Siapakah pemilik anak kucing tersebut?",
+                hint: "Dia ialah seorang budak lelaki yang memanggil nama Mimi dari belakang.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Hana", emoji: "👧🏻", correct: false },
+                    { text: "Amir", emoji: "👦🏻", correct: false },
+                    { text: "Seorang guru", emoji: "👩‍🏫", correct: false },
+                    { text: "Daniel", emoji: "🧒🏽", correct: true }
+                ]
+            },
+            // PUSINGAN 4: Fahami Tindakan (Soalan 7-8)
+            {
+                id: 7,
+                round: 4,
+                roundName: "Pusingan 4: Fahami Tindakan",
+                typeLabel: "Soalan Peristiwa",
+                question: "Apakah yang dilakukan oleh Hana apabila mengetahui Daniel sedang mencari anak kucingnya?",
+                hint: "Hana membantu Daniel dengan memberitahu di mana Mimi berada.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Menyembunyikan anak kucing itu", emoji: "🙈", correct: false },
+                    { text: "Menunjukkan anak kucing itu kepada Daniel", emoji: "👉🐱", correct: true },
+                    { text: "Meninggalkan Daniel", emoji: "🚶", correct: false },
+                    { text: "Membawa anak kucing itu ke kelas", emoji: "🏫", correct: false }
+                ]
+            },
+            {
+                id: 8,
+                round: 4,
+                roundName: "Pusingan 4: Fahami Tindakan",
+                typeLabel: "Betul atau Salah",
+                question: "Daniel berasa gembira apabila bertemu semula dengan anak kucingnya.",
+                hint: "Ingat bagaimana reaksi Daniel selepas melihat Mimi semula dan mengucapkan terima kasih.",
+                isTrueFalse: true,
+                options: [
+                    { text: "BETUL", emoji: "✅", correct: true },
+                    { text: "SALAH", emoji: "❌", correct: false }
+                ]
+            },
+            // PUSINGAN 5: Pengajaran Cerita (Soalan 9-10)
+            {
+                id: 9,
+                round: 5,
+                roundName: "Pusingan 5: Pengajaran Cerita",
+                typeLabel: "Soalan Perasaan",
+                question: "Apakah perasaan Hana dan Amir selepas membantu Daniel?",
+                hint: "Mereka tersenyum dan meneruskan perjalanan ke sekolah dengan hati yang ceria.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Kecewa", emoji: "😞", correct: false },
+                    { text: "Marah", emoji: "😠", correct: false },
+                    { text: "Gembira", emoji: "😄", correct: true },
+                    { text: "Takut", emoji: "😨", correct: false }
+                ]
+            },
+            {
+                id: 10,
+                round: 5,
+                roundName: "Pusingan 5: Pengajaran Cerita",
+                typeLabel: "Soalan Pengajaran",
+                question: "Apakah pengajaran yang boleh kita peroleh daripada cerita tersebut?",
+                hint: "Pilih sikap murni yang ditunjukkan oleh Hana dan Amir terhadap haiwan dan rakan.",
+                isTrueFalse: false,
+                options: [
+                    { text: "Kita hendaklah mengabaikan haiwan yang memerlukan bantuan.", emoji: "🚫", correct: false },
+                    { text: "Kita hendaklah mengambil barang orang lain.", emoji: "🙅", correct: false },
+                    { text: "Kita hendaklah bermain ketika ke sekolah.", emoji: "⚽", correct: false },
+                    { text: "Kita hendaklah prihatin dan suka membantu.", emoji: "💖🤝", correct: true }
+                ]
+            }
+        ];
+
+        const SEQUENCE_EVENTS = [
+            { id: 1, text: "Hana dan Amir berjalan ke sekolah." },
+            { id: 2, text: "Mereka menemukan anak kucing di bawah pokok mangga." },
+            { id: 3, text: "Amir memberikan makanan kepada anak kucing." },
+            { id: 4, text: "Daniel datang mencari Mimi." },
+            { id: 5, text: "Hana dan Amir membantu Daniel menemukan Mimi." }
+        ];
+
+        /* =====================================================================
+           3. KEADAAN PERMAINAN (GAME STATE)
+        ===================================================================== */
+        const state = {
+            controlMode: 'mouse', // 'camera' | 'mouse'
+            storyReturnTarget: 'quiz', // 'quiz' | 'ingame' | 'speaking'
+            showStoryText: true,
+            currentQuestionIndex: 0,
+            score: 0,
+            combo: 1,
+            maxCombo: 1,
+            correctCount: 0,
+            wrongAttempts: 0,
+            questionSolved: false,
+            firstTryOnCurrent: true,
+            // Hand Tracking & Dwell Lock
+            cameraActive: false,
+            mpCamera: null,
+            mpHands: null,
+            reticleX: window.innerWidth / 2,
+            reticleY: window.innerHeight / 2,
+            lockedCardIndex: null,
+            lockStartTime: 0,
+            dwellDurationMs: 1150, // 1.15 saat kunci sasaran untuk pilih automatik
+            selectionCooldown: false,
+            // Sequence & Recording
+            currentSequence: [],
+            isRecording: false,
+            mediaRecorder: null,
+            audioChunks: [],
+            speechRecognition: null
+        };
+
+        /* =====================================================================
+           4. MOD CERITA & TEXT-TO-SPEECH (SPEECH SYNTHESIS API)
+        ===================================================================== */
+        let ttsTimer = null;
+        let currentParaIdx = 0;
+        let isStoryPaused = false;
+
+        function renderStoryParagraphs() {
+            const container = document.getElementById('story-text-container');
+            container.innerHTML = STORY_PARAGRAPHS.map((p, idx) => `
+                <p id="story-para-${idx}" class="story-para p-2.5 rounded-xl font-medium text-amber-950">
+                    ${p}
+                </p>
+            `).join('');
+        }
+
+        function highlightParagraph(idx) {
+            document.querySelectorAll('.story-para').forEach((el, i) => {
+                if (i === idx) {
+                    el.classList.add('active-reading');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    el.classList.remove('active-reading');
+                }
+            });
+        }
+
+        function getMalayVoice() {
+            if (!('speechSynthesis' in window)) return null;
+            const voices = window.speechSynthesis.getVoices();
+            return (
+                voices.find(v => v.lang.toLowerCase().includes('ms-my')) ||
+                voices.find(v => v.lang.toLowerCase().startsWith('ms')) ||
+                voices.find(v => v.lang.toLowerCase().includes('id-id')) ||
+                voices.find(v => v.lang.toLowerCase().startsWith('id')) ||
+                null
+            );
+        }
+
+        function speakText(text, onEndCallback = null) {
+            if (!('speechSynthesis' in window)) {
+                if (onEndCallback) setTimeout(onEndCallback, 2500);
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            const voice = getMalayVoice();
+            if (voice) utter.voice = voice;
+            utter.lang = 'ms-MY';
+            utter.rate = 0.94;
+            utter.pitch = 1.05;
+
+            let ended = false;
+            const finish = () => {
+                if (!ended) {
+                    ended = true;
+                    if (onEndCallback) onEndCallback();
+                }
+            };
+
+            utter.onend = finish;
+            utter.onerror = finish;
+            window.speechSynthesis.speak(utter);
+
+            // Fallback timer sekiranya browser tidak mencetuskan onend
+            const fallbackMs = Math.max(2500, text.length * 72);
+            clearTimeout(ttsTimer);
+            ttsTimer = setTimeout(finish, fallbackMs);
+        }
+
+        function playStoryFromIndex(idx) {
+            if (idx >= STORY_PARAGRAPHS.length) {
+                document.getElementById('tts-status-bar').textContent = "✅ Tamat cerita! Tekan ‘🎯 MULA KUIZ 10 MISI!’ untuk bermula.";
+                highlightParagraph(-1);
+                return;
+            }
+            currentParaIdx = idx;
+            isStoryPaused = false;
+            highlightParagraph(idx);
+            document.getElementById('tts-status-bar').textContent = `🔊 Sedang membacakan perenggan ${idx + 1} daripada ${STORY_PARAGRAPHS.length}...`;
+
+            speakText(STORY_PARAGRAPHS[idx], () => {
+                if (!isStoryPaused) {
+                    playStoryFromIndex(idx + 1);
+                }
+            });
+        }
+
+        function playStoryTTS() {
+            sfx.init();
+            if (isStoryPaused && 'speechSynthesis' in window && window.speechSynthesis.paused) {
+                resumeStoryTTS();
+                return;
+            }
+            playStoryFromIndex(currentParaIdx >= STORY_PARAGRAPHS.length ? 0 : currentParaIdx);
+        }
+
+        function restartStoryTTS() {
+            sfx.init();
+            clearTimeout(ttsTimer);
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            currentParaIdx = 0;
+            isStoryPaused = false;
+            playStoryFromIndex(0);
+        }
+
+        function pauseStoryTTS() {
+            isStoryPaused = true;
+            clearTimeout(ttsTimer);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.pause();
+            }
+            document.getElementById('tts-status-bar').textContent = "⏸️ Bacaan dijeda. Tekan ‘▶️ SAMBUNG’ untuk meneruskan.";
+        }
+
+        function resumeStoryTTS() {
+            isStoryPaused = false;
+            if ('speechSynthesis' in window && window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+                document.getElementById('tts-status-bar').textContent = `🔊 Menyambung bacaan perenggan ${currentParaIdx + 1}...`;
+            } else {
+                playStoryFromIndex(currentParaIdx);
+            }
+        }
+
+        function toggleStoryTextVisibility() {
+            state.showStoryText = !state.showStoryText;
+            const textBox = document.getElementById('story-text-container');
+            const placeholder = document.getElementById('listening-only-placeholder');
+            const btn = document.getElementById('toggle-text-mode-btn');
+
+            if (state.showStoryText) {
+                textBox.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                btn.textContent = "📖 Mod: Dengar & Baca";
+            } else {
+                textBox.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                btn.textContent = "🎧 Mod: Mendengar Sahaja";
+            }
+        }
+
+        /* =====================================================================
+           5. NAVIGASI SKRIN & ALIRAN PERMAINAN
+        ===================================================================== */
+        function startFlowWithStory(mode) {
+            sfx.playStart();
+            state.controlMode = mode;
+            state.storyReturnTarget = 'quiz';
+            openStoryMode('quiz');
+        }
+
+        function openStoryMode(returnTarget) {
+            sfx.init();
+            state.storyReturnTarget = returnTarget;
+            renderStoryParagraphs();
+            document.getElementById('welcome-modal').classList.add('hidden');
+            document.getElementById('story-modal').classList.remove('hidden');
+
+            const startBtn = document.querySelector('#story-modal button[onclick="startQuizFromStory()"]');
+            if (returnTarget === 'ingame') {
+                startBtn.textContent = "🎯 KEMBALI KE SOALAN";
+            } else if (returnTarget === 'speaking') {
+                startBtn.textContent = "🎤 KEMBALI KE MISI BERTUTUR";
+            } else {
+                startBtn.textContent = "🎯 MULA KUIZ 10 MISI! →";
+            }
+        }
+
+        function backToWelcomeFromStory() {
+            stopStoryAudio();
+            document.getElementById('story-modal').classList.add('hidden');
+            document.getElementById('welcome-modal').classList.remove('hidden');
+        }
+
+        function stopStoryAudio() {
+            clearTimeout(ttsTimer);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        async function startQuizFromStory() {
+            stopStoryAudio();
+            document.getElementById('story-modal').classList.add('hidden');
+
+            if (state.storyReturnTarget === 'ingame') {
+                document.getElementById('game-screen').classList.remove('hidden');
+                return;
+            }
+            if (state.storyReturnTarget === 'speaking') {
+                document.getElementById('speaking-modal').classList.remove('hidden');
+                return;
+            }
+
+            // Reset statistik kuiz baharu
+            state.currentQuestionIndex = 0;
+            state.score = 0;
+            state.combo = 1;
+            state.maxCombo = 1;
+            state.correctCount = 0;
+            state.wrongAttempts = 0;
+
+            document.getElementById('game-screen').classList.remove('hidden');
+            sfx.playStart();
+
+            if (state.controlMode === 'camera') {
+                await initCameraAndHandTracking();
+            } else {
+                enableMouseModeUI();
+            }
+
+            loadQuestion(0);
+        }
+
+        function returnToMainMenu() {
+            stopStoryAudio();
+            stopCameraStream();
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('victory-modal').classList.add('hidden');
+            document.getElementById('speaking-modal').classList.add('hidden');
+            document.getElementById('ar-reticle').style.display = 'none';
+            document.getElementById('welcome-modal').classList.remove('hidden');
+        }
+
+        /* =====================================================================
+           6. LOGIK KUIZ, KAD WANTED & SISTEM SKOR / COMBO
+        ===================================================================== */
+        function shuffleArray(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function updateHUD() {
+            const q = QUESTIONS_BANK[state.currentQuestionIndex];
+            document.getElementById('hud-round-badge').textContent = `ROUND ${q.round} / 5`;
+            document.getElementById('hud-question-num').textContent = `🎯 SOALAN ${state.currentQuestionIndex + 1} / 10`;
+            document.getElementById('hud-score').textContent = state.score;
+            document.getElementById('hud-combo').textContent = `x${state.combo}`;
+
+            const progressPct = ((state.currentQuestionIndex + 1) / QUESTIONS_BANK.length) * 100;
+            document.getElementById('hud-progress-bar').style.width = `${progressPct}%`;
+        }
+
+        function loadQuestion(index) {
+            state.currentQuestionIndex = index;
+            state.questionSolved = false;
+            state.firstTryOnCurrent = true;
+            state.lockedCardIndex = null;
+            state.lockStartTime = 0;
+            updateReticleProgress(0);
+
+            const q = QUESTIONS_BANK[index];
+
+            // Bunyi peralihan pusingan jika masuk pusingan baharu
+            if (index > 0 && QUESTIONS_BANK[index - 1].round !== q.round) {
+                sfx.playRoundTransition();
+            }
+
+            updateHUD();
+
+            document.getElementById('round-title-label').textContent = q.roundName;
+            document.getElementById('question-type-label').textContent = q.typeLabel;
+            document.getElementById('question-text').textContent = q.question;
+
+            const banner = document.getElementById('feedback-banner');
+            banner.classList.add('hidden');
+
+            // Rawakkan susunan pilihan jawapan
+            const randomizedOptions = shuffleArray(q.options);
+            const labels = ['A', 'B', 'C', 'D'];
+            const grid = document.getElementById('cards-grid');
+
+            if (q.isTrueFalse) {
+                grid.className = "grid grid-cols-2 gap-3 sm:gap-6 max-w-2xl mx-auto";
+            } else {
+                grid.className = "grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5";
+            }
+
+            grid.innerHTML = randomizedOptions.map((opt, idx) => `
+                <button
+                    type="button"
+                    data-card-idx="${idx}"
+                    data-correct="${opt.correct}"
+                    onclick="handleCardSelect(${idx})"
+                    class="wanted-card rounded-2xl p-2.5 sm:p-3.5 flex flex-col items-center justify-between text-center min-h-[112px] sm:min-h-[138px] cursor-pointer focus:outline-none">
+                    <div class="w-full flex items-center justify-between border-b border-amber-800/30 pb-1">
+                        <span class="font-western text-[10px] sm:text-xs text-amber-900 tracking-wider">WANTED</span>
+                        <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-amber-800 text-amber-100 font-outfit font-extrabold text-xs sm:text-sm flex items-center justify-center shadow">
+                            ${labels[idx]}
+                        </span>
+                    </div>
+
+                    <div class="my-1.5 flex flex-col items-center justify-center flex-1">
+                        <span class="text-xl sm:text-2xl mb-1">${opt.emoji}</span>
+                        <span class="font-outfit font-extrabold text-xs sm:text-sm md:text-base text-amber-950 leading-tight">
+                            ${opt.text}
+                        </span>
+                    </div>
+
+                    <div class="w-full pt-1 border-t border-amber-800/20 text-[10px] sm:text-[11px] font-extrabold text-teal-800">
+                        🎯 SASARAN
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function speakCurrentQuestion() {
+            const q = QUESTIONS_BANK[state.currentQuestionIndex];
+            speakText(q.question);
+        }
+
+        function showAndSpeakHint() {
+            sfx.init();
+            const q = QUESTIONS_BANK[state.currentQuestionIndex];
+            const banner = document.getElementById('feedback-banner');
+            const bannerText = document.getElementById('feedback-banner-text');
+
+            banner.className = "mt-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-teal-100 border border-teal-500 text-teal-950 flex items-center gap-2";
+            bannerText.textContent = `💡 Petunjuk Cowboy: ${q.hint}`;
+            banner.classList.remove('hidden');
+
+            speakText(q.hint);
+        }
+
+        function spawnFloatingText(text, x, y, colorClass = 'text-amber-300') {
+            const el = document.createElement('div');
+            el.className = `floating-feedback font-comic text-2xl sm:text-4xl ${colorClass}`;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            el.textContent = text;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1400);
+        }
+
+        function handleCardSelect(cardIdx) {
+            if (state.questionSolved || state.selectionCooldown) return;
+
+            const cards = document.querySelectorAll('#cards-grid .wanted-card');
+            const selectedCard = cards[cardIdx];
+            if (!selectedCard) return;
+
+            const isCorrect = selectedCard.getAttribute('data-correct') === 'true';
+            const rect = selectedCard.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + 10;
+
+            state.selectionCooldown = true;
+            setTimeout(() => { state.selectionCooldown = false; }, 650);
+
+            const banner = document.getElementById('feedback-banner');
+            const bannerText = document.getElementById('feedback-banner-text');
+
+            if (isCorrect) {
+                state.questionSolved = true;
+                selectedCard.classList.add('card-correct');
+
+                // Kira skor & combo
+                const comboBonus = (state.combo - 1) * 25;
+                const earned = 100 + comboBonus;
+                state.score += earned;
+
+                if (state.firstTryOnCurrent) {
+                    state.correctCount += 1;
+                }
+
+                sfx.playCorrect();
+                if (state.combo > 1) {
+                    sfx.playCombo(state.combo);
+                }
+
+                spawnFloatingText(`⭐ BETUL! +${earned} BOUNTY!`, centerX, centerY, 'text-green-300');
+                if (state.combo > 1) {
+                    setTimeout(() => {
+                        spawnFloatingText(`🔥 COMBO x${state.combo}!`, centerX, centerY - 32, 'text-amber-300');
+                    }, 180);
+                }
+
+                // Naikkan combo untuk soalan seterusnya
+                state.combo += 1;
+                if (state.combo > state.maxCombo) {
+                    state.maxCombo = state.combo;
+                }
+                updateHUD();
+
+                banner.className = "mt-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold bg-green-100 border-2 border-green-600 text-green-950 flex items-center gap-2";
+                bannerText.textContent = "⭐ Hebat! Kamu mendengar dengan teliti!";
+                banner.classList.remove('hidden');
+
+                // Confetti kecil ceria
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 45,
+                        spread: 60,
+                        origin: { x: centerX / window.innerWidth, y: centerY / window.innerHeight }
+                    });
+                }
+
+                // Terus ke soalan seterusnya atau modal kemenangan
+                setTimeout(() => {
+                    if (state.currentQuestionIndex + 1 < QUESTIONS_BANK.length) {
+                        loadQuestion(state.currentQuestionIndex + 1);
+                    } else {
+                        showVictoryModal();
+                    }
+                }, 1450);
+
+            } else {
+                // Jawapan salah (Tiada penalti markah, combo kembali x1, cuba lagi)
+                state.firstTryOnCurrent = false;
+                state.wrongAttempts += 1;
+                state.combo = 1;
+                updateHUD();
+
+                selectedCard.classList.add('card-wrong');
+                sfx.playWrong();
+
+                spawnFloatingText("❌ CUBA LAGI!", centerX, centerY, 'text-red-400');
+
+                const gameScreen = document.getElementById('game-screen');
+                gameScreen.classList.remove('shake-anim');
+                void gameScreen.offsetWidth;
+                gameScreen.classList.add('shake-anim');
+
+                banner.className = "mt-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-red-100 border-2 border-red-500 text-red-950 flex items-center gap-2";
+                bannerText.textContent = "Belum tepat! Ingat kembali cerita yang kamu dengar. Jangan risau, cowboy! Cuba pilih sasaran lain.";
+                banner.classList.remove('hidden');
+            }
+        }
+
+        function confirmLockedTarget() {
+            if (state.lockedCardIndex !== null) {
+                handleCardSelect(state.lockedCardIndex);
+            }
+        }
+
+        /* =====================================================================
+           7. MEDIAPIPE HANDS (HAND TRACKING AR) & RETICLE LOCK SYSTEM
+        ===================================================================== */
+        function enableMouseModeUI() {
+            state.controlMode = 'mouse';
+            state.cameraActive = false;
+            document.getElementById('webcam-video').classList.add('hidden');
+            document.getElementById('decorative-desert').classList.remove('hidden');
+            document.getElementById('ar-hand-guide').classList.add('hidden');
+            document.getElementById('ar-reticle').style.display = 'none';
+            document.getElementById('hud-tracking-text').textContent = "Mod Tetikus / Sentuhan";
+            document.getElementById('toggle-cam-btn').textContent = "📹 Guna Kamera";
+        }
+
+        function stopCameraStream() {
+            const video = document.getElementById('webcam-video');
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(t => t.stop());
+                video.srcObject = null;
+            }
+            state.cameraActive = false;
+        }
+
+        async function toggleCameraMode() {
+            if (state.cameraActive) {
+                stopCameraStream();
+                enableMouseModeUI();
+            } else {
+                await initCameraAndHandTracking();
+            }
+        }
+
+        async function initCameraAndHandTracking() {
+            const videoElement = document.getElementById('webcam-video');
+            const statusText = document.getElementById('hud-tracking-text');
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showCameraErrorModal("Pelayar web kamu tidak menyokong akses kamera.");
+                return;
+            }
+
+            try {
+                statusText.textContent = "Memulakan Kamera...";
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: false
+                });
+
+                videoElement.srcObject = stream;
+                await videoElement.play();
+
+                videoElement.classList.remove('hidden');
+                document.getElementById('decorative-desert').classList.add('hidden');
+                document.getElementById('ar-hand-guide').classList.remove('hidden');
+                document.getElementById('toggle-cam-btn').textContent = "🖱️ Mod Tetikus";
+
+                state.controlMode = 'camera';
+                state.cameraActive = true;
+                statusText.textContent = "Kamera Aktif • Kesan Tangan...";
+
+                if (typeof Hands !== 'undefined') {
+                    if (!state.mpHands) {
+                        state.mpHands = new Hands({
+                            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+                        });
+
+                        state.mpHands.setOptions({
+                            maxNumHands: 1,
+                            modelComplexity: 1,
+                            minDetectionConfidence: 0.55,
+                            minTrackingConfidence: 0.5
+                        });
+
+                        state.mpHands.onResults(onHandTrackingResults);
+                    }
+
+                    const processFrame = async () => {
+                        if (!state.cameraActive) return;
+                        if (videoElement.readyState >= 2) {
+                            await state.mpHands.send({ image: videoElement });
+                        }
+                        requestAnimationFrame(processFrame);
+                    };
+                    requestAnimationFrame(processFrame);
+                } else {
+                    statusText.textContent = "Kamera Aktif (Sentuh Kad)";
+                }
+            } catch (err) {
+                console.warn("Kamera ralat:", err);
+                showCameraErrorModal("Kamera tidak dapat diakses atau kebenaran ditolak. Kamu boleh terus bermain menggunakan tetikus atau sentuhan!");
+            }
+        }
+
+        function showCameraErrorModal(msg) {
+            document.getElementById('camera-error-msg').textContent = msg;
+            document.getElementById('camera-error-modal').classList.remove('hidden');
+        }
+
+        function switchToMouseModeFromError() {
+            document.getElementById('camera-error-modal').classList.add('hidden');
+            enableMouseModeUI();
+        }
+
+        async function retryCamera() {
+            document.getElementById('camera-error-modal').classList.add('hidden');
+            await initCameraAndHandTracking();
+        }
+
+        function updateReticleProgress(ratio) {
+            const circle = document.getElementById('reticle-progress-circle');
+            const circumference = 213.6;
+            const clamped = Math.max(0, Math.min(1, ratio));
+            circle.style.strokeDashoffset = circumference * (1 - clamped);
+        }
+
+        function onHandTrackingResults(results) {
+            if (!state.cameraActive) return;
+            const reticle = document.getElementById('ar-reticle');
+            const badge = document.getElementById('reticle-badge');
+            const statusText = document.getElementById('hud-tracking-text');
+            const manualBtnBar = document.getElementById('manual-lock-bar');
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+                // Landmark 8 = Hujung jari telunjuk
+                const indexTip = landmarks[8];
+
+                // Kira koordinat mengikut kamera mirrored: (1 - x) * windowWidth
+                const screenX = (1 - indexTip.x) * window.innerWidth;
+                const screenY = indexTip.y * window.innerHeight;
+
+                // Pelicinan pergerakan reticle (smoothing)
+                state.reticleX += (screenX - state.reticleX) * 0.45;
+                state.reticleY += (screenY - state.reticleY) * 0.45;
+
+                reticle.style.display = 'block';
+                reticle.style.left = `${state.reticleX}px`;
+                reticle.style.top = `${state.reticleY}px`;
+                statusText.textContent = "✋ Tangan Dikesan!";
+
+                // Semak perlanggaran reticle dengan kad jawapan menggunakan getBoundingClientRect()
+                const cards = document.querySelectorAll('#cards-grid .wanted-card');
+                let hoveredIndex = null;
+
+                cards.forEach((card, idx) => {
+                    const rect = card.getBoundingClientRect();
+                    const inside = (
+                        state.reticleX >= rect.left &&
+                        state.reticleX <= rect.right &&
+                        state.reticleY >= rect.top &&
+                        state.reticleY <= rect.bottom
+                    );
+                    if (inside) {
+                        hoveredIndex = idx;
+                        card.classList.add('target-locked');
+                    } else {
+                        card.classList.remove('target-locked');
+                    }
+                });
+
+                if (hoveredIndex !== null && !state.questionSolved) {
+                    reticle.classList.add('locked');
+                    badge.classList.remove('hidden');
+                    manualBtnBar.classList.remove('hidden');
+                    manualBtnBar.classList.add('flex');
+                    statusText.textContent = "🎯 SASARAN DIKUNCI!";
+
+                    if (state.lockedCardIndex !== hoveredIndex) {
+                        state.lockedCardIndex = hoveredIndex;
+                        state.lockStartTime = performance.now();
+                        sfx.playLock();
+                    } else {
+                        const elapsed = performance.now() - state.lockStartTime;
+                        const progress = elapsed / state.dwellDurationMs;
+                        updateReticleProgress(progress);
+
+                        if (progress >= 1 && !state.selectionCooldown) {
+                            updateReticleProgress(0);
+                            state.lockStartTime = performance.now() + 99999;
+                            handleCardSelect(hoveredIndex);
+                        }
+                    }
+                } else {
+                    reticle.classList.remove('locked');
+                    badge.classList.add('hidden');
+                    manualBtnBar.classList.add('hidden');
+                    manualBtnBar.classList.remove('flex');
+                    state.lockedCardIndex = null;
+                    updateReticleProgress(0);
+                }
+            } else {
+                reticle.style.display = 'none';
+                statusText.textContent = "📷 Angkat Tangan di Hadapan Kamera";
+                state.lockedCardIndex = null;
+                updateReticleProgress(0);
+            }
+        }
+
+        /* =====================================================================
+           8. MODAL KEMENANGAN (VICTORY MODAL)
+        ===================================================================== */
+        function showVictoryModal() {
+            sfx.playVictory();
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('ar-reticle').style.display = 'none';
+            document.getElementById('victory-modal').classList.remove('hidden');
+
+            const totalQuestions = QUESTIONS_BANK.length;
+            const totalAttempts = totalQuestions + state.wrongAttempts;
+            const accuracy = Math.round((totalQuestions / totalAttempts) * 100);
+
+            let stars = 1;
+            let starIcons = "⭐";
+            if (state.correctCount >= 8) {
+                stars = 3;
+                starIcons = "⭐⭐⭐";
+            } else if (state.correctCount >= 5) {
+                stars = 2;
+                starIcons = "⭐⭐";
+            }
+
+            document.getElementById('victory-stars').textContent = starIcons;
+            document.getElementById('stat-bounty').textContent = state.score;
+            document.getElementById('stat-correct').textContent = `${state.correctCount}/${totalQuestions}`;
+            document.getElementById('stat-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('stat-max-combo').textContent = `x${state.maxCombo}`;
+            document.getElementById('stat-wrong').textContent = state.wrongAttempts;
+            document.getElementById('stat-stars-count').textContent = `${stars} Bintang`;
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById('victory-modal').classList.add('hidden');
+            state.currentQuestionIndex = 0;
+            state.score = 0;
+            state.combo = 1;
+            state.maxCombo = 1;
+            state.correctCount = 0;
+            state.wrongAttempts = 0;
+
+            document.getElementById('game-screen').classList.remove('hidden');
+            sfx.playStart();
+            loadQuestion(0);
+        }
+
+        /* =====================================================================
+           9. MISI BERTUTUR: CERITAKAN KEMBALI & RAKAMAN SUARA
+        ===================================================================== */
+        function openSpeakingMission() {
+            document.getElementById('victory-modal').classList.add('hidden');
+            document.getElementById('speaking-modal').classList.remove('hidden');
+            shuffleSequenceCards();
+        }
+
+        function shuffleSequenceCards() {
+            let shuffled = shuffleArray(SEQUENCE_EVENTS);
+            // Pastikan tidak terus tersusun 1..5 secara kebetulan
+            if (shuffled.every((item, idx) => item.id === idx + 1)) {
+                shuffled.reverse();
+            }
+            state.currentSequence = shuffled;
+            document.getElementById('sequence-feedback').textContent = "";
+            renderSequenceCards();
+        }
+
+        function renderSequenceCards() {
+            const list = document.getElementById('sequence-cards-list');
+            list.innerHTML = state.currentSequence.map((item, idx) => `
+                <div class="flex items-center justify-between gap-2 bg-amber-50 border-2 border-amber-600/50 rounded-xl px-3 py-2.5 shadow-2xs">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-7 h-7 rounded-full bg-teal-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0">
+                            ${idx + 1}
+                        </span>
+                        <span class="font-bold text-xs sm:text-sm text-amber-950">${item.text}</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="moveSequenceCard(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}
+                            class="px-2.5 py-1 rounded-lg bg-amber-200 hover:bg-amber-300 disabled:opacity-35 font-extrabold text-xs text-amber-950 border border-amber-700 cursor-pointer">
+                            ⬆️
+                        </button>
+                        <button onclick="moveSequenceCard(${idx}, 1)" ${idx === state.currentSequence.length - 1 ? 'disabled' : ''}
+                            class="px-2.5 py-1 rounded-lg bg-amber-200 hover:bg-amber-300 disabled:opacity-35 font-extrabold text-xs text-amber-950 border border-amber-700 cursor-pointer">
+                            ⬇️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moveSequenceCard(index, direction) {
+            const target = index + direction;
+            if (target < 0 || target >= state.currentSequence.length) return;
+            sfx.playLock();
+            const temp = state.currentSequence[index];
+            state.currentSequence[index] = state.currentSequence[target];
+            state.currentSequence[target] = temp;
+            renderSequenceCards();
+        }
+
+        function checkSequenceOrder() {
+            const isCorrectOrder = state.currentSequence.every((item, idx) => item.id === idx + 1);
+            const fb = document.getElementById('sequence-feedback');
+
+            if (isCorrectOrder) {
+                sfx.playCorrect();
+                fb.className = "text-xs sm:text-sm font-extrabold text-green-700";
+                fb.textContent = "✅ Syabas! Urutan peristiwa cerita tepat sekali!";
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 40, spread: 55, origin: { y: 0.5 } });
+                }
+            } else {
+                sfx.playWrong();
+                fb.className = "text-xs sm:text-sm font-extrabold text-red-700";
+                fb.textContent = "❌ Hampir tepat! Semak semula permulaan dan pengakhiran cerita.";
+            }
+        }
+
+        function startOralPracticeMode() {
+            sfx.playStart();
+            const panel = document.getElementById('recording-panel');
+            const statusText = document.getElementById('recording-status-text');
+            panel.classList.remove('hidden');
+            statusText.className = "text-xs sm:text-sm font-extrabold text-teal-800 flex items-center gap-2";
+            statusText.innerHTML = `<span>🗣️ Mod Bercerita Secara Lisan Aktif! Ceritakan kisah Rahsia Pokok Mangga di hadapan guru atau rakan menggunakan penanda wacana di atas.</span>`;
+        }
+
+        async function toggleVoiceRecording() {
+            const btn = document.getElementById('record-voice-btn');
+            const panel = document.getElementById('recording-panel');
+            const statusText = document.getElementById('recording-status-text');
+            const audioPlayer = document.getElementById('recorded-audio-player');
+            const transcriptBox = document.getElementById('speech-transcript-box');
+            const transcriptText = document.getElementById('speech-transcript-text');
+
+            if (state.isRecording) {
+                // Hentikan rakaman
+                state.isRecording = false;
+                btn.textContent = "🎙️ RAKAM SUARA";
+                btn.classList.remove('animate-pulse');
+                if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+                    state.mediaRecorder.stop();
+                }
+                if (state.speechRecognition) {
+                    try { state.speechRecognition.stop(); } catch (e) {}
+                }
+                statusText.className = "text-xs sm:text-sm font-extrabold text-green-800 flex items-center gap-2";
+                statusText.innerHTML = `<span>✅ Rakaman selesai! Tekan butang play di bawah untuk mendengar semula suara kamu.</span>`;
+                return;
+            }
+
+            // Mulakan rakaman baharu dalam memori tempatan sahaja
+            panel.classList.remove('hidden');
+            audioPlayer.classList.add('hidden');
+            state.audioChunks = [];
+
+            // Cuba Web Speech API untuk transkripsi langsung jika disokong
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRec) {
+                state.speechRecognition = new SpeechRec();
+                state.speechRecognition.lang = 'ms-MY';
+                state.speechRecognition.continuous = true;
+                state.speechRecognition.interimResults = true;
+                transcriptBox.classList.remove('hidden');
+                transcriptText.textContent = "Mendengar suara kamu...";
+
+                state.speechRecognition.onresult = (event) => {
+                    let finalStr = '';
+                    for (let i = 0; i < event.results.length; i++) {
+                        finalStr += event.results[i][0].transcript + ' ';
+                    }
+                    transcriptText.textContent = finalStr.trim();
+                };
+                try { state.speechRecognition.start(); } catch (e) {}
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                state.mediaRecorder = new MediaRecorder(stream);
+
+                state.mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) state.audioChunks.push(e.data);
+                };
+
+                state.mediaRecorder.onstop = () => {
+                    const blob = new Blob(state.audioChunks, { type: 'audio/webm' });
+                    const localUrl = URL.createObjectURL(blob);
+                    audioPlayer.src = localUrl;
+                    audioPlayer.classList.remove('hidden');
+                    stream.getTracks().forEach(t => t.stop());
+                };
+
+                state.mediaRecorder.start();
+                state.isRecording = true;
+                btn.textContent = "⏹️ HENTI RAKAMAN";
+                btn.classList.add('animate-pulse');
+                statusText.className = "text-xs sm:text-sm font-extrabold text-red-700 flex items-center gap-2";
+                statusText.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span><span>Sedang merakam suara... Tekan ‘⏹️ HENTI RAKAMAN’ apabila selesai.</span>`;
+            } catch (err) {
+                statusText.className = "text-xs sm:text-sm font-bold text-amber-900";
+                statusText.textContent = "🎙️ Mikrofon tidak tersedia, tetapi kamu boleh terus bercerita secara lisan di hadapan guru dan rakan!";
+            }
+        }
+
+        function selectSpeakingRubric(stars) {
+            sfx.playVictory();
+            document.querySelectorAll('.rubric-card').forEach(c => c.classList.remove('ring-4', 'ring-green-500'));
+            const chosen = document.getElementById(`rubric-card-${stars}`);
+            if (chosen) chosen.classList.add('ring-4', 'ring-green-500');
+
+            const banner = document.getElementById('rubric-result-banner');
+            const starEmoji = '⭐'.repeat(stars);
+            banner.textContent = `🤠 Tahniah Cowboy Cilik! Pencapaian Misi Bertutur kamu ialah ${starEmoji} (${stars} Bintang)!`;
+            banner.classList.remove('hidden');
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 70, spread: 75, origin: { y: 0.7 } });
+            }
+        }
+
+        // Preload suara SpeechSynthesis apabila sedia
+        window.onload = function () {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+        };
+    </script>
+</body>
+</html>
